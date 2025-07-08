@@ -3,8 +3,8 @@ import type { Address, Action, Step, Result } from "./types";
 const deliveryChecker = (deliveries: Address[][], path: Address[]) : Result => {
   const pickupAddresses: Address[] = [];
   const dropoffAddresses: Address[] = [];
-  //récupération des adresses de pickup et dropoff
   for (const delivery of deliveries) {
+      //vérifie si le path est complet
     for (const tour of delivery) {
       if (!path.includes(tour)) {
         return {
@@ -14,6 +14,7 @@ const deliveryChecker = (deliveries: Address[][], path: Address[]) : Result => {
         };
       }
     }
+    //vérification de la cohérence du path
     const [pickup, dropoff] = delivery;
     if (path.indexOf(pickup) > path.indexOf(dropoff)) {
       return {
@@ -27,7 +28,7 @@ const deliveryChecker = (deliveries: Address[][], path: Address[]) : Result => {
   }
 
    const steps: Step[] = [];
-  //vérification du chemin
+  //attribution une action à chaque adresse
   for (const address of path) {
     let action: Action = null;
     if (pickupAddresses.includes(address)) {

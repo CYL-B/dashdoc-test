@@ -12,6 +12,7 @@ function App() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
+    //avec l'aide de l'IA
     try {
       const parsed = JSON.parse(delivery);
       const { deliveries, path } = parsed;
@@ -25,7 +26,6 @@ function App() {
       setResult(null);
     }
   };
-  console.log("Result:", result);
 
   return (
     <main className="container mx-auto p-4">
@@ -33,19 +33,19 @@ function App() {
         <h1 className="text-4xl font-bold self-center">
           Delivery path generator tool
         </h1>
-            {result && result.status === "success" && (
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Table steps={result.steps} />
-          <Timeline steps={result.steps} />
+        {result && result.status === "success" && (
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Table steps={result.steps} />
+              <Timeline steps={result.steps} />
+            </div>
           </div>
-        </div>
-      )}
-      {result && result.status === "error" && (
-        <div className="alert alert-error">
-          <p>{result.error_message}</p>
-        </div>
-      )}
+        )}
+        {result && result.status === "error" && (
+          <div className="alert alert-error">
+            <p>{result.error_message}</p>
+          </div>
+        )}
         <Editor delivery={delivery} onDeliveryChange={setDelivery} />
         {error && <div className="alert alert-error">{error}</div>}
         <button className="btn btn-primary" onClick={handleSubmit}>
