@@ -1,0 +1,43 @@
+import type { Address, Action, Step, Result } from "./types";
+
+const deliveryChecker = (deliveries: Address[][], path: Address[]) : Result => {
+  const pickupAddresses: Address[] = [];
+  const dropoffAddresses: Address[] = [];
+  //récupération des adresses de pickup et dropoff
+  for (const delivery of deliveries) {
+    for (const tour of delivery) {
+      if (!path.includes(tour)) {
+        return {
+          status: "error",
+          error_code: "delivery_address_not_in_path",
+          error_message: `L'adresse ${tour} ne figure pas dans l'itinéraire choisi.`,
+        };
+      }
+    }
+    const [pickup, dropoff] = delivery;
+    if (path.indexOf(pickup) > path.indexOf(dropoff)) {
+      return {
+        status: "error",
+        error_code: "delivery_dropoff_before_pickup",
+        error_message: `Le pickup à l'adresse ${pickup} doit se faire avant le dropoff à l'adresse ${dropoff}.`,
+      };
+    }
+    pickupAddresses.push(pickup);
+    dropoffAddresses.push(dropoff);
+  }
+
+   const steps: Step[] = [];
+  //vérification du chemin
+  for (const address of path) {
+    let action: Action = null;
+    if (pickupAddresses.includes(address)) {
+      action = "pickup";
+    } else if (dropoffAddresses.includes(address)) {
+      action = "dropoff";
+    }
+    steps.push({ address, action });
+  }
+  return { status: "success", steps: steps };
+};
+
+export default deliveryChecker;

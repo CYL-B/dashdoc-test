@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { useState } from "react";
+import deliveryChecker from "./deliveryChecker";
+import Editor from "./editor";
+import Table from "./table";
+import Timeline from "./timeline";
+import type { Result } from "./types";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [delivery, setDelivery] = useState<string>("");
+  const [result, setResult] = useState<Result | null>();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = () => {
+    try {
+      const parsed = JSON.parse(delivery);
+      const { deliveries, path } = parsed;
+      const res = deliveryChecker(deliveries, path);
+      setResult(() => {
+        return res;
+      });
+      setError(null);
+    } catch (e: unknown) {
+      setError("Invalid JSON format");
+      setResult(null);
+    }
+  };
+  console.log("Result:", result);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <main className="container mx-auto p-4">
+      <div className="flex flex-col gap-8">
+        <h1 className="text-4xl font-bold self-center">
+          Delivery path generator tool
+        </h1>
+            {result && result.status === "success" && (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Table steps={result.steps} />
+          <Timeline steps={result.steps} />
+          </div>
+        </div>
+      )}
+      {result && result.status === "error" && (
+        <div className="alert alert-error">
+          <p>{result.error_message}</p>
+        </div>
+      )}
+        <Editor delivery={delivery} onDeliveryChange={setDelivery} />
+        {error && <div className="alert alert-error">{error}</div>}
+        <button className="btn btn-primary" onClick={handleSubmit}>
+          Generate
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </main>
+  );
 }
 
-export default App
+export default App;
